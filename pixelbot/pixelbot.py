@@ -3,6 +3,7 @@ import math
 import random
 
 COLORS = ["#6af407", "#07f4dc", "#f40707", "#0b07f4", "#f40766", "#ef9d0e", "#6af407"]
+COLORS_BODY = ["#f4ec07", "#07f462", "#f407e4", "#8b4513", "#63FF9C", "#9dcfe2", "#7f8c8d"]
 
 class PixelBot:
     def __init__(self):
@@ -46,6 +47,7 @@ class PixelBot:
         self.canvas.bind("<ButtonPress-3>", self.on_drag_start)
         self.canvas.bind("<B3-Motion>", self.on_drag)
         self.window.bind("<Alt_L>", self.toggle_mouth)
+        self.window.bind('<Alt_R>', self.change_color)
         self.window.focus_force()    
         self.update_gaze()
 
@@ -118,6 +120,15 @@ class PixelBot:
     def unsmile(self, event=None):
         self.canvas.itemconfig(self.mouth_line, state='normal')
         self.canvas.itemconfig(self.mouth_oval, state='hidden')
+
+    def change_color(self, event):
+        random_color_body = random.choice(COLORS_BODY)
+        current_color = self.canvas.itemconfig(self.body, "fill")[4]
+        if current_color == "#601ab1":
+            self.canvas.itemconfig(self.body, fill = random_color_body)
+            
+        else:
+            self.canvas.itemconfig(self.body, fill = "#601ab1")
 
     def run(self):
         self.window.mainloop()
