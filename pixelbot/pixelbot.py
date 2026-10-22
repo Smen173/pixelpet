@@ -42,16 +42,20 @@ class PixelBot:
         self.drag_offset_x = 0
         self.drag_offset_y = 0
 
+        self.menu = Menu(self)
+        
         self.window.bind("<Button-1>", self.on_click)
         self.window.bind("<Escape>", lambda e: self.window.destroy())
         self.canvas.bind("<ButtonPress-3>", self.on_drag_start)
         self.canvas.bind("<B3-Motion>", self.on_drag)
         self.window.bind("<Alt_L>", self.toggle_mouth)
         self.window.bind('<Alt_R>', self.change_color)
+        self.window.bind('<q>', self.menu.show)
         self.window.focus_force()    
         self.update_gaze()
 
     def update_gaze(self):
+        
         wx = self.window.winfo_rootx()
         wy = self.window.winfo_rooty()
         mx = self.window.winfo_pointerx()
@@ -83,8 +87,8 @@ class PixelBot:
         )
 
         self.window.after(50, self.update_gaze)
-
     def on_click(self, event=None):
+        self.menu.hide()
         random_color = random.choice(COLORS)
         self.canvas.itemconfig(self.body, fill=random_color)
         self.canvas.itemconfig(self.mouth_line, state="normal")
@@ -132,6 +136,47 @@ class PixelBot:
 
     def run(self):
         self.window.mainloop()
+class Menu(tk.Toplevel):
+    def __init__(self, bot):
+        super().__init__(bot.window)
+        self.bot = bot
+        
+        self.overrideredirect(True)
+        self.wm_attributes("-topmost", True)
+        self.config(bg="#222222", highlightthickness=1, highlightbackground="#444444")
+        self.withdraw()
+
+        info_text = (
+            "УПРАВЛЕНИЕ:\n"
+            "ЛКМ — смена цвета\n"
+            "ПКМ — перетащить бота\n"
+            "Alt-L — улыбка\n"
+            "Alt-R - смена цвета тела\n"
+            "Esc — закрыть программу"
+            
+        )
+        lbl_info = tk.Label(
+            self, text=info_text, bg="#222222", fg="#aaaaaa",
+            font=("Consolas", 8), justify="left", anchor="w", padx=10, pady=5
+        )
+        lbl_info.pack(fill="x")
+        
+    def show(self, event=None):
+        self.update_idletasks()
+        
+        bx, by = self.bot.window.winfo_rootx(), self.bot.window.winfo_rooty()
+        x = bx + (50 - self.winfo_reqwidth()) // 2
+        y = by + 55
+        
+        if y + self.winfo_reqheight() > self.winfo_screenheight():
+            y = by - self.winfo_reqheight() - 5
+            
+        self.geometry(f"+{x}+{y}")
+        self.deiconify()
+        self.focus_force()
+
+    def hide(self):
+        self.withdraw()
 
 if __name__ == "__main__":
     bot = PixelBot()
