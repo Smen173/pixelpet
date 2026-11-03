@@ -53,6 +53,7 @@ class PixelBot:
         self.window.bind('<q>', self.menu.show)
         self.window.focus_force()    
         self.update_gaze()
+        self.blink()
 
     def update_gaze(self):
         
@@ -111,6 +112,16 @@ class PixelBot:
         y = self.window.winfo_pointery() - self.drag_offset_y
         self.window.geometry(f"+{x}+{y}")
 
+    def blink(self):
+        self.canvas.itemconfig(self.eye_left, state = 'hidden')
+        self.canvas.itemconfig(self.eye_right, state = 'hidden') 
+        self.window.after(125, self.unblink)
+        self.window.after(random.randint(2500,5000), self.blink)
+
+    def unblink(self):
+        self.canvas.itemconfig(self.eye_left, state = 'normal')
+        self.canvas.itemconfig(self.eye_right, state = 'normal')
+
     def toggle_mouth(self, event=None):
         if self.canvas.itemcget(self.mouth_oval, 'state') == 'normal':
             self.unsmile()
@@ -130,7 +141,6 @@ class PixelBot:
         current_color = self.canvas.itemconfig(self.body, "fill")[4]
         if current_color == "#601ab1":
             self.canvas.itemconfig(self.body, fill = random_color_body)
-            
         else:
             self.canvas.itemconfig(self.body, fill = "#601ab1")
 
@@ -153,7 +163,6 @@ class Menu(tk.Toplevel):
             "Alt-L — улыбка\n"
             "Alt-R - смена цвета тела\n"
             "Esc — закрыть программу"
-            
         )
         lbl_info = tk.Label(
             self, text=info_text, bg="#222222", fg="#aaaaaa",
